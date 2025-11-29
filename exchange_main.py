@@ -67,11 +67,11 @@ async def help_command(interaction: discord.Interaction):
 @tree.command(name="symbols", description="列出所有支援的貨幣代碼與國家")
 async def symbols(interaction: discord.Interaction):
     try:
-        url = "https://api.exchangerate.host/symbols"
+        url = f"https://api.exchangerate.host/symbols?access_key={EXCHANGE_API_KEY}"
         res = requests.get(url).json()
         data = res.get("symbols")
         if not data:
-            await interaction.response.send_message("取得貨幣代碼失敗")
+            await interaction.response.send_message(f"取得貨幣代碼失敗，API 回傳：{res}")
             return
         
         # 文字整理
@@ -194,4 +194,5 @@ async def on_ready():
         print(e)
 
 bot.run(DISCORD_TOKEN)
+
 
