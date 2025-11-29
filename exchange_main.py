@@ -64,26 +64,41 @@ async def help_command(interaction: discord.Interaction):
 # 列出所有國家代碼
 # -----------------------
 
+from discord import app_commands
+
 @tree.command(name="symbols", description="列出所有支援的貨幣代碼與國家")
 async def symbols(interaction: discord.Interaction):
     try:
-        url = f"https://api.exchangerate.host/symbols?access_key={EXCHANGE_API_KEY}"
-        res = requests.get(url).json()
-        data = res.get("symbols")
-        if not data:
-            await interaction.response.send_message(f"取得貨幣代碼失敗，API 回傳：{res}")
-            return
-        
-        # 文字整理
-        text_output = "所有支援貨幣代碼：\n"
-        for code, info in sorted(data.items()):
-            text_output += f"{code} : {info['description']}\n"
-
-        # Discord 文字框
+        text_output = """所有支援貨幣代碼：
+AUD : Australian Dollar
+BRL : Brazilian Real
+CAD : Canadian Dollar
+CHF : Swiss Franc
+CNY : Chinese Yuan
+DKK : Danish Krone
+EUR : Euro
+GBP : British Pound Sterling
+HKD : Hong Kong Dollar
+INR : Indian Rupee
+JPY : Japanese Yen
+KRW : South Korean Won
+MXN : Mexican Peso
+MYR : Malaysian Ringgit
+NOK : Norwegian Krone
+NZD : New Zealand Dollar
+PLN : Polish Zloty
+SEK : Swedish Krona
+SGD : Singapore Dollar
+THB : Thai Baht
+TWD : New Taiwan Dollar
+TRY : Turkish Lira
+USD : United States Dollar
+ZAR : South African Rand
+"""
         await interaction.response.send_message(f"```\n{text_output}\n```")
-        
     except Exception as e:
         await interaction.response.send_message(f"取得貨幣代碼失敗：{e}")
+
 # -----------------------
 # /rate 即時匯率
 # -----------------------
@@ -194,5 +209,6 @@ async def on_ready():
         print(e)
 
 bot.run(DISCORD_TOKEN)
+
 
 
