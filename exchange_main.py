@@ -16,9 +16,6 @@ from datetime import datetime, timedelta
 import os
 
 
-# -----------------------
-# 本地測試用 Key
-# -----------------------
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 EXCHANGE_API_KEY = os.environ["EXCHANGE_API_KEY"]
@@ -32,6 +29,61 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree  # 用來建立 Slash Commands
 
+
+
+# -----------------------
+# 列出指令
+# -----------------------
+@tree.command(name="help", description="列出所有基本指令用法")
+async def help_command(interaction: discord.Interaction):
+    help_text = """
+**Bot 指令列表**
+
+1️⃣ /rate  
+查即時匯率  
+用法：`/rate base:USD target:TWD`  
+
+2️⃣ /history  
+查歷史匯率（可查單一天或最近 N 天）  
+用法：
+- 查單一天：`/history base:USD target:TWD date:2025-11-29`  
+- 查最近 N 天：`/history base:USD target:TWD days:10`  
+
+3️⃣ /advice  
+由 Gemini 分析匯率，給出是否適合購買建議  
+用法：`/advice base:USD target:TWD days:30`  
+
+4️⃣ /symbols  
+列出所有支援的貨幣代碼與國家  
+用法：`/symbols`
+"""
+    await interaction.response.send_message(help_text)
+
+
+# -----------------------
+# 列出所有國家代碼
+# -----------------------
+
+@tree.command(name="symbols", description="列出所有支援的貨幣代碼與國家")
+async def symbols(interaction: discord.Interaction):
+    try:
+        url = "https://api.exchangerate.host/symbols"
+        res = requests.get(url).json()
+        data = res.get("symbols")
+        if not data:
+            await interaction.response.send_message("取得貨幣代碼失敗")
+            return
+        
+        # 文字整理
+        text_output = "所有支援貨幣代碼：\n"
+        for code, info in sorted(data.items()):
+            text_output += f"{code} : {info['description']}\n"
+
+        # Discord 文字框
+        await interaction.response.send_message(f"```\n{text_output}\n```")
+        
+    except Exception as e:
+        await interaction.response.send_message(f"取得貨幣代碼失敗：{e}")
 # -----------------------
 # /rate 即時匯率
 # -----------------------
@@ -142,3 +194,4 @@ async def on_ready():
         print(e)
 
 bot.run(DISCORD_TOKEN)
+
